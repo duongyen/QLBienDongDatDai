@@ -1,0 +1,276 @@
+﻿
+@{
+    ViewBag.Title = "Thụ lý hồ sơ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section style{
+    <style>
+        .hideButton {
+            z-index: -1;
+        }
+
+        tbody tr:hover {
+            cursor: pointer
+        }
+
+        .k-grid tbody .k-button {
+            min-width: 40px;
+            text-align: center;
+        }
+    </style>
+}
+
+@section RouterPage{
+    <h2>Danh sách hồ sơ</h2>
+
+}
+
+<div class="row" style="padding-left:5px; padding-right:5px;">
+
+    <div class="row">
+        <div id="gridDetail" style="width: 100%; height: 650px;"></div>
+    </div>
+</div>
+
+
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var lstBaoCao;
+
+            $.ajax({
+                type: "GET",
+                url: "/ThuLyHoSo/DanhSachChoThuLy",
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    lstBaoCao = data.Data;
+                },
+                error: function (data) {
+                    console.log(data.Message);
+                    dataSource = null;
+                }
+            });
+
+            var grid = $(this).find('#gridDetail');
+            grid.kendoGrid({
+                dataSource: {
+                    type: "json",
+                    data: lstBaoCao,
+                    schema: {
+                        model: {
+                            fields: {
+                                IDHoSo: { type: "number" },
+                                MaHoSo: { type: "number" },
+                                IDLoaiHoSo: { type: "number" },
+                                TenLoaiHoSo: { type: "string" },
+                                IDPhuongXa: { type: "number" },
+                                TenPhuongXa: { type: "string" },
+                                SDTNguoiNopHoSo: { type: "string" },
+                                NguoiChuyenQSDD: { type: "string" },
+                                NguoiChuyenDongSoHuu: { type: "string" },
+                                NguoiNhanQSDD: { type: "string" },
+                                NguoiNhanDongSoHuu: { type: "string" },
+                                NgayNhanHoSo: { type: "string" },
+                                NgayTraHoSo: { type: "string" },
+                                PhuongThucTiepNhanHS: { type: "string" },
+                                IDCanBoTiepNhan: { type: "number" },
+                                CanBoTiepNhan: { type: "string" },
+                                IDTrangThai: { type: "number" },
+                                TenTrangThai: { type: "string" },
+                                TomTatHoSo: { type: "string" },
+                            }
+                        }
+                    },
+                    //pageSize: 10,
+                },
+                dataBinding: function () {
+                    record = 0;
+                },
+                sortable: false,
+                scrollable: true,
+                // pageable: true,
+                filterable: true,
+                columns: [
+                    {
+                        title: "STT",
+                        template: "#= ++record #",
+                        width: 50,
+                        maxwidth: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "IDHoSo",
+                        title: "IDHoSo",
+                        hidden: true
+                    },  //
+
+                    {
+                        field: "TomTatHoSo",
+                        title: "Tóm tắt hồ sơ",
+                        width: 150,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }, filterable: {
+                            multi: true,
+                            search: true
+                        }
+                    },
+                    {
+                        field: "TenLoaiHoSo",
+                        title: "Loại hồ sơ",
+                        width: 60,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "TenPhuongXa",
+                        title: "Tên Phường/Xã",
+                        width: 60,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "SDTNguoiNopHoSo",
+                        title: "SĐT người nộp",
+                        width: 60,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "NguoiChuyenQSDD",
+                        title: "Người chuyển QSDĐ",
+                        width: 100,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "NguoiNhanQSDD",
+                        title: "Người nhận QSDĐ",
+                        width: 100,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "NgayNhanHoSo",
+                        title: "Ngày nhận",
+                        width: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "NgayTraHoSo",
+                        title: "Ngày hẹn trả",
+                        width: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "CanBoTiepNhan",
+                        title: "Cán bộ tiếp nhận",
+                        width: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }, {
+                        command: [
+                            {
+                                name: "ThuLy",
+                                iconClass: "k-icon k-i-track-changes-accept",
+                                text: "",
+                                width: 45,
+                                className: "btnxxx",
+                                click: TiepNhan
+                            }
+                        ]
+                        , title: ""
+                        , width: "70px"
+                        , headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }
+                ]
+            });
+
+        });
+
+        function Reload() {
+            //  window.location.href = ""
+        }
+        function TiepNhan(e) {
+            e.preventDefault();
+            var grid = this;
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var IDHoSo = dataItem.IDHoSo;
+            window.location.href = "/ThuLyHoSo/ThuLy?IDHoSo=" + IDHoSo;
+        }
+    </script>
+
+
+}

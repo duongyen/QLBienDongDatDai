@@ -1,0 +1,113 @@
+﻿
+@{
+    ViewBag.Title = "Danh sách phường/Xã";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section style{
+    <style>
+        .hideButton {
+            z-index: -1;
+        }
+
+        tbody tr:hover {
+            cursor: pointer
+        }
+    </style>
+}
+
+@section RouterPage{
+    <h2>Danh sách phường/Xã</h2>
+
+}
+
+<div style="padding-left:5px; padding-right:5px;">
+
+    <div class="row">
+        <div id="gridDetail" style="width: 100%; height: 650px;"></div>
+    </div>
+</div>
+
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var lst;
+            $.ajax({
+                type: "GET",
+                url: "/PhuongXa/DanhsachPhuongXa",
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    lst = data.Data;
+                },
+                error: function (data) {
+                    console.log(data.Message);
+                    dataSource = null;
+                }
+            });
+
+            var grid = $(this).find('#gridDetail');
+            grid.kendoGrid({
+                dataSource: {
+                    type: "json",
+                    data: lst,
+                    schema: {
+                        model: {
+                            fields: {
+                                IDPhuongXa: { type: "number" },
+                                TenPhuongXa: { type: "string" },
+                            }
+                        }
+                    },
+                    //pageSize: 10,
+                },
+                dataBinding: function () {
+                    record = 0;
+                },
+                sortable: false,
+                scrollable: true,
+                // pageable: true,
+
+                columns: [
+                    {
+                        title: "STT",
+                        template: "#= ++record #",
+                        width: 70,
+                        maxwidth: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "IDPhuongXa",
+                        title: "ID Phường",
+                        groupHeaderTemplate: "#= value #",
+                        hidden: true
+                    },  //
+                    {
+                        field: "TenPhuongXa",
+                        title: "Tên Phường/Xã",
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: left; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }
+                ]
+            });
+
+        });
+    </script>
+
+
+}

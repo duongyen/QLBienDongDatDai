@@ -1,0 +1,478 @@
+﻿
+@{
+    ViewBag.Title = "Xử lý biên lai";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section style{
+    <style>
+        .k-grid tbody .k-button {
+            width: 35px;
+            height: 35px;
+            min-width: 0px;
+            /*font-size: 24px;*/
+            border-radius: 100%;
+            text-align: center;
+            border: none;
+        }
+
+        .k-window-content p {
+            margin-bottom: 1em;
+        }
+
+        .k-prompt-container, .k-window-content {
+            padding: 5px;
+        }
+
+        .btn btn-primary {
+            float: right;
+        }
+    </style>
+}
+
+@section RouterPage{
+    <h2>Trả kết quả</h2>
+}
+
+<div class="row" style="padding-left:5px; padding-right:5px;">
+
+    <div class="row">
+        <div id="gridDetail" style="width: 100%; height: 650px;"></div>
+    </div>
+</div>
+
+<div id="windowThemMoi">
+    <input type="hidden" id="IDHoSo" />
+    <div style="margin-left: 5px; margin-right:5px;">
+        <div class="row" style="padding:10px 0 20px 0">
+            <div class="col-sm">
+                <label class="title" for="duAn">Tóm tắt hồ sơ</label><br />
+                <input id="TomTatHoSo" style="width:100%" disabled />
+            </div>
+        </div>
+        <div class="row" style="padding: 7px 0 10px 0">
+            <div class="col-sm">
+                <label class="title" for="tgBatDau">Ngày trả</label><br />
+                <input id="NgayTraKetQua" title="datetimepicker" style="width: 100%;" />
+            </div>
+            <div class="col-sm">
+                <label class="title" for="tgKetThuc">Lệ phí</label><br />
+                <input id="LePhi" title="datetimepicker" style="width:100%" />
+            </div>
+        </div>
+
+        @*<b style="font-size: 16px; font-family: Roboto; padding-top:15px; padding-left:5px">Giấy chứng nhận</b>
+        <em id="btnThemGiayChungNhan" style="border:none; margin-left:5px;" data-toggle="tooltip" data-placement="top" title="Thêm giấy chứng nhận"></em>
+        <br />*@
+
+        @*<div class="row">
+            <div id="gridGiayChungNhan" style="width: 100%; height: 650px;"></div>
+        </div>*@
+        <div class="row" style="padding: 15px 0 10px 0">
+            <div class="col-sm-10">
+            </div>
+            <div class="col-sm">
+                <button id="btnSave" onclick="LuuKetQua()" class="btn btn-primary" style="width: 40px; height: 20px; float:right;">Lưu</button><br />
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@*<div id="windowGCN">
+    <input type="hidden" id="IDGCN" />
+    <div style="margin-left: 5px; margin-right:5px;">
+        <div class="row" style="padding: 7px 0 10px 0">
+            <div class="col-sm">
+                <label class="title" for="SoPhatHanhGCN">Số phát hành</label><br />
+                <input id="SoPhatHanhGCN" style="width:100%" disabled />
+            </div>
+            <div class="col-sm">
+                <label class="title" for="SoVaoSo">Số vào sổ</label><br />
+                <input id="SoVaoSo" style="width: 100%;" />
+            </div>
+        </div>
+        <div class="row" style="padding: 7px 0 10px 0">
+            <div class="col-sm">
+                <label class="title" for="NgayKyBia">Ngày ký bìa</label><br />
+                <input id="NgayKyBia" title="datetimepicker" style="width:100%" />
+            </div>
+
+            <div class="col-sm">
+            </div>
+        </div>
+
+        <div class="row" style="padding: 15px 0 10px 0">
+            <div class="col-sm-10">
+            </div>
+            <div class="col-sm">
+                <button id="btnSave" onclick="LuuBienLai()" class="btn btn-primary" style="width: 40px; height: 20px; float:right;">Lưu</button><br />
+            </div>
+        </div>
+    </div>
+
+</div>*@
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#NgayTraKetQua").kendoDateTimePicker({
+                value: new Date(),
+                format: "dd/MM/yyyy",
+                dateInput: true,
+                max: new Date(),
+            });
+
+            $("#LePhi").kendoNumericTextBox({
+                decimals: 0
+            });
+
+            $("#btnThemGiayChungNhan").kendoButton({
+                icon: "add",
+                //click: ThemThuaDat_Click
+            });
+
+            var grid = $(this).find('#gridDetail');
+            grid.kendoGrid({
+                dataSource: {
+                    type: "json",
+                    //pageSize: 10,
+                },
+                dataBinding: function () {
+                    record = 0;
+                },
+                sortable: false,
+                scrollable: true,
+                // pageable: true,
+                filterable: true,
+                columns: [
+                    {
+                        title: "STT",
+                        template: "#= ++record #",
+                        width: 50,
+                        maxwidth: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "IDHoSo",
+                        title: "IDHoSo",
+                        hidden: true
+                    },
+                    {
+                        field: "NgayTraKetQua",
+                        title: "NgayTraKetQua",
+                        hidden: true
+                    },
+                    {
+                        field: "LePhi",
+                        title: "LePhi",
+                        hidden: true
+                    },
+                    {
+                        field: "TomTatHoSo",
+                        title: "Tóm tắt hồ sơ",
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }, filterable: {
+                            multi: true,
+                            search: true
+                        }
+                    },
+                    {
+                        field: "TenLoaiHoSo",
+                        title: "Loại hồ sơ",
+                        width: 150,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "NguoiChuyenQSDD",
+                        title: "Người chuyển QSDĐ",
+                        width: 150,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "NguoiNhanQSDD",
+                        title: "Người nhận QSDĐ",
+                        width: 150,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        command: [
+                            {
+                                name: "ThuLy",
+                                iconClass: "k-icon k-i-track-changes-accept",
+                                text: "",
+                                width: 45,
+                                className: "btnxxx",
+                                click: TiepNhan
+                            }
+                        ]
+                        , title: ""
+                        , width: 50
+                        , headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }
+                ]
+            });
+
+            var gridGCN = $(this).find('#gridGiayChungNhan');
+            gridGCN.kendoGrid({
+                dataSource: {
+                    type: "json",
+                    schema: {
+                        model: {
+                            fields: {
+                                IDGCN: { type: "number" },
+                                IDHoSo: { type: "number" },
+                                SoPhatHanhGCN: { type: "string" },
+                                SoVaoSo: { type: "string" },
+                                NgayKyBia: { type: "string" },
+                            }
+                        }
+                    },
+                },
+                dataBinding: function () {
+                    record = 0;
+                },
+                sortable: false,
+                scrollable: true,
+                // pageable: true,
+                filterable: true,
+                columns: [
+                    {
+                        title: "STT",
+                        template: "#= ++record #",
+                        width: 50,
+                        maxwidth: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "IDGCN",
+                        title: "IDGCN",
+                        hidden: true
+                    },
+                    {
+                        field: "SoPhatHanhGCN",
+                        title: "Số phát hành",
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }, filterable: {
+                            multi: true,
+                            search: true
+                        }
+                    },
+                    {
+                        field: "SoVaoSo",
+                        title: "Số vào sổ",
+                        width: 150,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "NgayKyBia",
+                        title: "Ngày ký bìa",
+                        width: 150,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        command: [
+                            {
+                                name: "ThuLy",
+                                iconClass: "k-icon k-i-track-changes-accept",
+                                text: "",
+                                width: 45,
+                                className: "btnxxx",
+                                // click: TiepNhan
+                            }
+                        ]
+                        , title: ""
+                        , width: 50
+                        , headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }
+                ]
+            });
+
+
+            LoadData();
+
+            var myWindowThemMoi = $("#windowThemMoi");
+            myWindowThemMoi.kendoWindow({
+                width: "800px",
+                height: "300px",
+                title: "Trả kết quả",
+                visible: false,
+                resizable: false,
+                actions: [
+                    "Close"
+                ]
+            }).data("kendoWindow").center();
+            //windowGCN
+
+        });
+
+        function LoadData() {
+            var lstBaoCao;
+            $.ajax({
+                type: "GET",
+                url: "/TraKetQua/DanhSachTraKetQua",
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    lstBaoCao = data.Data;
+                },
+                error: function (data) {
+                    console.log(data.Message);
+                    dataSource = null;
+                }
+            });
+
+            $("#gridDetail").data("kendoGrid").setDataSource(lstBaoCao);
+        }
+
+        function LoadGCN(IDHoSo) {
+            var lstGCN;
+            $.ajax({
+                type: "GET",
+                url: "/GiayChungNhan/DanhSachGiayChungNhan",
+                data: { IDHoSo: IDHoSo },
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    lstGCN = data.Data;
+                },
+                error: function (data) {
+                    console.log(data.Message);
+                }
+            });
+
+            $("#gridGiayChungNhan").data("kendoGrid").setDataSource(lstGCN);
+        }
+
+        function TiepNhan(e) {
+            e.preventDefault();
+            var grid = this;
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var IDHoSo = dataItem.IDHoSo;
+
+            $("#IDHoSo").val(dataItem.IDHoSo);
+            $("#TomTatHoSo").val(dataItem.TomTatHoSo);
+            $("#NgayTraKetQua").data("kendoDateTimePicker").value(dataItem.NgayTraKetQua);
+            $("#LePhi").val(dataItem.LePhi);
+           // LoadGCN(IDHoSo);
+            var myWindowThemMoi = $("#windowThemMoi");
+            myWindowThemMoi.data("kendoWindow").open();
+        }
+
+        function LuuKetQua() {
+            var IDHoSo = $("#IDHoSo").val();
+            var NgayTraKetQua = $("#NgayTraKetQua").val();
+            var LePhi = $("#LePhi").val();
+            $('#btnSave').attr("disabled", true);
+            $.ajax({
+                type: "POST",
+                url: "/TraKetQua/LuuKetQua",
+                data: "{IDHoSo: '" + IDHoSo
+                    + "', NgayTraKetQua: '" + NgayTraKetQua
+                    + "', LePhi: '" + LePhi + "'}"
+                ,
+                async: false,
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.State == 0 && data.Data) {
+
+                        alert("Lưu kết quả thành công");
+                        $("#IDThuaDat").val(data.Message);
+
+                        $("#windowThemMoi").data("kendoWindow").close();
+                        LoadData();
+                    }
+                    else {
+                        alert(data.Message);
+                    }
+                },
+                error: function (data) {
+                    alert("Lưu kết quả thất bại", data.Message);
+                },
+                complete: function () {
+                    // enable nut luu
+                    $('#btnSave').attr("disabled", false);
+                }
+            });
+        }
+    </script>
+
+
+}

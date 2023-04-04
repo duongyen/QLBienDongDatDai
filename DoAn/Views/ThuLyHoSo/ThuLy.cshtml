@@ -1,0 +1,874 @@
+﻿@model DoAn.Models.vHoSo
+
+@{
+    ViewBag.Title = "Thụ lý hồ sơ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section style{
+    <style>
+        .k-grid tbody .k-button {
+            width: 35px;
+            height: 35px;
+            min-width: 0px;
+            /*font-size: 24px;*/
+            border-radius: 100%;
+            text-align: center;
+            border: none;
+        }
+
+        .k-window-content p {
+            margin-bottom: 1em;
+        }
+
+        .k-prompt-container, .k-window-content {
+            padding: 5px;
+        }
+
+        .btn btn-primary {
+            float: right;
+        }
+    </style>
+}
+
+@section RouterPage{
+    <h2>@Html.ActionLink("Thụ lý hồ sơ", "Index", "ThuLyHoSo") > Thụ lý hồ sơ</h2>
+
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="container" style="width:80%;">
+        <div class="form-horizontal">
+            <h4>Thông tin hồ sơ</h4>
+            <hr />
+            @*@Html.ValidationSummary(true, "", new { @class = "text-danger" })*@
+            @Html.HiddenFor(model => model.IDHoSo, new { htmlAttributes = new { @class = "k-textbox" } })
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md">
+                        @Html.LabelForModel("Tóm tắt", htmlAttributes: new { @class = "control-label" })
+                        <br />
+                        @Html.EditorFor(model => model.TomTatHoSo, new { htmlAttributes = new { @class = "k-textbox", @disabled = "disabled", @Style = "width:100%;" } })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md">
+                            @Html.LabelForModel("Người chuyển", htmlAttributes: new { @class = "control-label" })
+                            <br />
+                            @Html.EditorFor(model => model.NguoiChuyenQSDD, new { htmlAttributes = new { @class = "k-textbox", @disabled = "disabled", @Style = "width:100%;" } })
+                        </div>
+                        <div class="col-md">
+                            @Html.LabelForModel("Người nhận", htmlAttributes: new { @class = "control-label" })
+                            <br />
+                            @Html.EditorFor(model => model.NguoiNhanQSDD, new { htmlAttributes = new { @class = "k-textbox", @disabled = "disabled", @Style = "width:100%;" } })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md">
+                            @Html.LabelForModel("Số phiếu chuyển", htmlAttributes: new { @class = "control-label" })
+                            <br />
+                            @Html.EditorFor(model => model.SoPhieuChuyen, new { htmlAttributes = new { @class = "k-textbox", @Style = "width:100%;" } })
+                        </div>
+                        <div class="col-md">
+                            @Html.LabelForModel("Ngày chuyển", htmlAttributes: new { @class = "control-label" })
+                            <br />
+                            @Html.EditorFor(model => model.NgayGiao, new { htmlAttributes = new { @Id = "NgayGiao", @Name = "NgayGiao", @Style = "width:100%;" } })
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md">
+                            @Html.LabelForModel("Số tờ trình", htmlAttributes: new { @class = "control-label" })
+                            <br />
+                            @Html.EditorFor(model => model.SoToTrinh, new { htmlAttributes = new { @class = "k-textbox", @Style = "width:100%;" } })
+                        </div>
+                        <div class="col-md">
+                            @Html.LabelForModel("Ngày trình", htmlAttributes: new { @class = "control-label " })
+                            @*<input id="NgayToTrinh" name="NgayToTrinh" title="Ngày báo cáo" style="width: 100%;" />*@
+                            <br />
+                            @Html.EditorFor(model => model.NgayToTrinh, new { htmlAttributes = new { @Id = "NgayToTrinh", @Name = "NgayToTrinh", @Style = "width:100%;" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <div class="row">
+                            @Html.LabelForModel("Ghi chú", htmlAttributes: new { @class = "control-label" })
+                            <textarea id="GhiChu" class="k-textbox" name="GhiChu" style="width: 100%; margin-right:10px;" rows="8"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <div class="row">
+                <label class="h4">Thông tin thửa đất</label>
+                <em id="btnThemThuaDat" style="border:none; margin-left:5px;" data-toggle="tooltip" data-placement="top" title="Thêm thửa đất"></em>
+            </div>
+            <hr />
+            <div class="row">
+                <div id="gridThuaDat" style="width: 100%; max-height: 400px;"></div>
+            </div>
+
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10">
+
+                </div>
+                <div class="col-md-2">
+                    <input type="submit" value="Lưu lại" class="btn btn-primary text-center" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div id="windowThemMoi">
+    <input type="hidden" id="IDThuaDat" name="IDThuaDat" />
+    <div style="margin-left: 5px; margin-right:5px;">
+        <div class="row" style="padding:10px 0 20px 0">
+            <div class="col-sm">
+                <label class="title" for="ThuaDatSo">Số thứ tự thửa đất</label><br />
+                <input id="ThuaDatSo" class="k-textbox" style="width:100%;" />
+            </div>
+            <div class="col-sm">
+                <label class="title" for="TongDienTich">Diện tích (m2)</label><br />
+                <input id="TongDienTich" class="k-textbox" style="width:100%; " /><br />
+            </div>
+        </div>
+        <div class="row" style="padding: 7px 0 10px 0">
+            <div class="col-sm">
+                <label class="title" for="ToBanDoSo">Số hiệu tờ bản đồ</label><br />
+                <input id="ToBanDoSo" class="k-textbox" style="width: 100%;" />
+            </div>
+            <div class="col-sm">
+                <label class="title" for="QuaTrinhSuDung">Quá trình sử dụng</label><br />
+                <input id="QuaTrinhSuDung" class="k-textbox" style="width:100%" />
+
+            </div>
+        </div>
+
+        <b style="font-size: 16px; font-family: Roboto; padding-top:15px; padding-left:5px">Mục đích sử dụng</b>
+        <em id="btnThemMucDichSuDung" style="border:none; margin-left:5px;" data-toggle="tooltip" data-placement="top" title="Thêm mục đích sử dụng"></em>
+        <br />
+
+        <div class="row" style="border:1px solid">
+            <div id="gridChiTietThuaDat" style="width: 100%; max-height: 200px;"></div>
+        </div>
+        <div class="row" style="padding: 15px 0 10px 0">
+
+            <div class="col-sm-10">
+            </div>
+            <div class="col-sm">
+                <button id="btnSave" onclick="ThemCongViecGiaoTrucTiep()" class="btn btn-primary" style="width: 40px; height: 20px; float:right;">Lưu</button><br />
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="windowChiTietThuaDat">
+    <input type="hidden" id="hidden_IDLoaiDat" />
+    <div style="margin-left: 5px; margin-right:5px;">
+        <div class="row" style="padding:10px 0 20px 0">
+            <div class="col-sm">
+                <label class="title" for="ddlMucDichSuDung">Mục đích sử dụng</label><br />
+                <input id="ddlMucDichSuDung" value="2" style="width: 100%; margin-right:-5px;" />
+            </div>
+            <div class="col-sm">
+                <label class="title" for="NgayHinhThanh">Ngày hình thành</label><br />
+                <input id="NgayHinhThanh" style="width:100%; " /><br />
+            </div>
+        </div>
+        <div class="row" style="padding: 7px 0 10px 0">
+            <div class="col-sm">
+                <label class="title" for="DienTichSuDung">Diện tích (m2)</label><br />
+                <input id="DienTichSuDung" class="k-textbox" style="width:100%; " /><br />
+            </div>
+            <div class="col-sm">
+                <label class="title" for="SuDungDenNgay">Sử dụng đến ngày</label><br />
+                <input id="SuDungDenNgay" style="width:100%" />
+            </div>
+        </div>
+        <div class="row" style="padding: 7px 0 10px 0">
+            <div class="col-sm">
+                <label class="title" for="MucDichSD_ChiTiet">Mục đích sử dụng</label><br />
+                <input id="MucDichSD_ChiTiet" class="k-textbox" style="width:100%" />
+            </div>
+        </div>
+        <div class="row" style="padding: 7px 0 10px 0">
+            <div class="col-sm">
+                <label class="title" for="GhiChu_LoaiDat">Ghi chú</label><br />
+                <input id="GhiChu_LoaiDat" class="k-textbox" style="width:100%" />
+            </div>
+        </div>
+
+
+        <div class="row" style="padding: 15px 0 10px 0">
+            <div class="col-sm-10">
+            </div>
+            <div class="col-sm">
+                <button id="btnSaveMucDich" onclick="CapNhatChiTietSuDung()" class="btn btn-primary" style="width: 40px; height: 20px; float:right;">Lưu</button><br />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script>
+        $(document).ready(function () {
+
+            $("#NgayGiao").kendoDatePicker({ format: "dd/MM/yyyy" });
+
+            $("#NgayToTrinh").kendoDatePicker({ format: "dd/MM/yyyy" });
+
+
+            $("#NgayHinhThanh").kendoDateTimePicker({
+                value: new Date(),
+                format: "dd/MM/yyyy",
+                dateInput: true,
+            });
+            $("#SuDungDenNgay").kendoDateTimePicker({
+                value: new Date(),
+                format: "dd/MM/yyyy",
+                dateInput: true,
+            });
+
+
+            $("#btnThemThuaDat").kendoButton({
+                icon: "add",
+                click: ThemThuaDat_Click
+            });
+            $("#btnThemMucDichSuDung").kendoButton({
+                icon: "add",
+                click: btnThemMucDichSuDung_Click
+            });
+            $("#DienTichThuaDat").kendoNumericTextBox({
+                decimals: 1
+            });
+            $("#DienTichODT").kendoNumericTextBox({
+                decimals: 1
+            });
+
+            var DanhSachLoaiDat;
+            $.ajax({
+                url: '/LoaiDat/DanhSachLoaiDat',
+                type: 'GET',
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    DanhSachLoaiDat = data;
+                },
+                error: function () {
+                    console.log('Error in Operation');
+                }
+            });
+
+            $("#ddlMucDichSuDung").kendoDropDownList({
+                dataTextField: "TenLoaiDat",
+                dataValueField: "IDLoaiDat",
+                dataSource: DanhSachLoaiDat,
+                index: 0
+            });
+
+
+            var grid = $(this).find('#gridThuaDat');
+            grid.kendoGrid({
+                dataSource: {
+                    type: "json",
+                    schema: {
+                        model: {
+                            fields: {
+                                IDThuaDat: { type: "number" },
+                                IDHoSo: { type: "number" },
+                                IDGCN: { type: "number" },
+                                ToBanDoSo: { type: "number" },
+                                ThuaDatSo: { type: "number" },
+                                TongDienTich: { type: "number" },
+                                QuaTrinhSuDung: { type: "string" },
+                                TomTatThuaDat: { type: "string" },
+                            }
+                        }
+                    },
+                    //pageSize: 10,
+                },
+                dataBinding: function () {
+                    record = 0;
+                },
+                sortable: false,
+                scrollable: true,
+                // pageable: true,
+                filterable: true,
+                columns: [
+                    {
+                        title: "STT",
+                        template: "#= ++record #",
+                        width: 50,
+                        maxwidth: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "IDThuaDat",
+                        title: "IDThuaDat",
+                        hidden: true
+                    },  //
+                    {
+                        field: "TomTatThuaDat",
+                        title: "Tóm tắt thửa đất",
+                        width: 250,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }, filterable: {
+                            multi: true,
+                            search: true
+                        }
+                    },
+                    {
+                        field: "ToBanDoSo",
+                        title: "Tờ bản đồ số",
+                        width: 80,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "ThuaDatSo",
+                        title: "Thửa đất số",
+                        width: 80,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "TongDienTich",
+                        title: "Tổng diện tích",
+                        width: 80,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "QuaTrinhSuDung",
+                        title: "Quá trình sử dụng",
+                        width: 100,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }, {
+                        command: [
+                            {
+                                name: "Sua",
+                                iconClass: "k-icon k-i-edit k-i-pencil",
+                                text: "",
+                                width: 45,
+                                className: "btnxxx",
+                                click: SuaThongTinThuaDat
+                            },
+                            {
+                                name: "Xoa",
+                                iconClass: "k-icon k-i-delete k-i-trash",
+                                text: "",
+                                width: 45,
+                                className: "btnxxx",
+                                click: XoaThuaDat
+                            }
+                        ]
+                        , title: ""
+                        , width: "95px"
+                        , headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }
+                ]
+            });
+            LoadThuaDat();
+
+            var grid = $(this).find('#gridChiTietThuaDat');
+            grid.kendoGrid({
+                dataSource: {
+                    type: "json",
+                    schema: {
+                        model: {
+                            fields: {
+                                IDThuaDat: { type: "number" },
+                                IDLoaiDat: { type: "number" },
+                                TenLoaiDat: { type: "string" },
+                                DienTich: { type: "number" },
+                                GhiChu: { type: "string" },
+                                MucDichSD_ChiTiet: { type: "string" },
+                                NgayHinhThanh: { type: "string" },
+                                SuDungDenNgay: { type: "string" },
+                            }
+                        }
+                    },
+                    //pageSize: 10,
+                },
+                dataBinding: function () {
+                    record = 0;
+                },
+                sortable: false,
+                scrollable: true,
+                // pageable: true,
+                filterable: true,
+                columns: [
+                    {
+                        title: "STT",
+                        template: "#= ++record #",
+                        width: 50,
+                        maxwidth: 70,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "IDThuaDat",
+                        title: "IDThuaDat",
+                        hidden: true
+                    },
+                    {
+                        field: "NgayHinhThanh",
+                        title: "NgayHinhThanh",
+                        hidden: true
+                    },
+                    {
+                        field: "SuDungDenNgay",
+                        title: "SuDungDenNgay",
+                        hidden: true
+                    },
+                    {
+                        field: "GhiChu",
+                        title: "GhiChu",
+                        hidden: true
+                    },
+                    {
+                        field: "TenLoaiDat",
+                        title: "Tên loại đất",
+                        width: 80,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "MucDichSD_ChiTiet",
+                        title: "Mục đích sử dụng",
+                        width: 120,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    },
+                    {
+                        field: "DienTich",
+                        title: "Diện tích",
+                        width: 80,
+                        headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: left; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }, {
+                        command: [
+                            {
+                                name: "Sua",
+                                iconClass: "k-icon k-i-edit k-i-pencil",
+                                text: "",
+                                width: 45,
+                                className: "btnxxx",
+                                click: SuaMucDicSuDung
+                            },
+                            {
+                                name: "Xoa",
+                                iconClass: "k-icon k-i-delete k-i-trash",
+                                text: "",
+                                width: 45,
+                                className: "btnxxx",
+                                click: XoaChiTietThuaDat
+                            }
+                        ]
+                        , title: ""
+                        , width: "95px"
+                        , headerAttributes: {
+                            "class": "table-header-cell",
+                            style: "text-align: center; font-size: 16px; font-weight: bold; white-space: normal; vertical-align: middle"
+                        },
+                        attributes: {
+                            "class": "table-cell",
+                            style: "text-align: center; font-size: 14px; white-space: normal; vertical-align: middle"
+                        }
+                    }
+                ]
+            });
+
+
+
+            // Disable Double Click Maximize
+            $(".k-window").unbind('dblclick');
+
+            var myWindowThemMoi = $("#windowThemMoi");
+            myWindowThemMoi.kendoWindow({
+                width: "800px",
+                height: "470px",
+                title: "Cập nhật thông tin thửa đất",
+                visible: false,
+                resizable: false,
+                actions: [
+                    "Close"
+                ]
+            }).data("kendoWindow").center();
+
+            var myWindowThemMoiCT = $("#windowChiTietThuaDat");
+            myWindowThemMoiCT.kendoWindow({
+                width: "700px",
+                height: "360px",
+                title: "Cập nhật mục đích sử dụng",
+                visible: false,
+                resizable: false,
+                actions: [
+                    "Close"
+                ]
+            }).data("kendoWindow").center();
+        });
+
+        function LoadThuaDat() {
+            var lstThuaDat;
+            $.ajax({
+                type: "GET",
+                url: "/ThongTinThuaDat/DanhSachThuaDat",
+                data: { IDHoSo: $("#IDHoSo").val() },
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    lstThuaDat = data.Data;
+                    console.log(lstThuaDat);
+                },
+                error: function (data) {
+                    console.log(data.Message);
+                    lstThuaDat = null;
+                }
+            });
+
+            $("#gridThuaDat").data("kendoGrid").setDataSource(lstThuaDat);
+
+        }
+
+        function LoadChiTietSuDung(idThuaDat) {
+            var lstChiTietThuaDat;
+            $.ajax({
+                type: "GET",
+                url: "/ChiTietThuaDat/DanhSachChiTietThuaDat",
+                data: { IDThuaDat: idThuaDat },
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    lstChiTietThuaDat = data.Data;
+
+                    console.log(lstChiTietThuaDat);
+                },
+                error: function (data) {
+                    console.log(data.Message);
+                    lstChiTietThuaDat = null;
+                }
+            });
+
+            $("#gridChiTietThuaDat").data("kendoGrid").setDataSource(lstChiTietThuaDat);
+        }
+
+        function btnThemMucDichSuDung_Click() {
+
+            $("#ddlMucDichSuDung").data("kendoDropDownList").enable(true);
+            $("#windowChiTietThuaDat").data("kendoWindow").open();
+
+        }
+
+        function ThemThuaDat_Click() {
+            isThemCongViec = true;
+            $("#IDThuaDat").val('-1')
+            $("#ToBanDoSo").val('');
+            $("#ThuaDatSo").val('');
+            $("#TongDienTich").val(0);
+            $("#QuaTrinhSuDung").val('');
+
+            $("#windowThemMoi").data("kendoWindow").open();
+
+            LoadChiTietSuDung(-1);
+
+        }
+
+        function ThemCongViecGiaoTrucTiep() {
+            var btnSave = $("#btnSave");
+            var IDThuaDat = $("#IDThuaDat").val();
+            var IDHoSo = $("#IDHoSo").val();
+            var ToBanDoSo = $("#ToBanDoSo").val();
+            var ThuaDatSo = $("#ThuaDatSo").val();
+            var TongDienTich = $("#TongDienTich").val();
+            var QuaTrinhSuDung = $("#QuaTrinhSuDung").val();
+
+            if (ToBanDoSo.length == 0 || ThuaDatSo.length == 0) {
+                alert("Vui lòng điền đầy đủ thông tin");
+            }
+            else {
+
+                // disable nut luu
+                $('#btnSave').attr("disabled", true);
+                $.ajax({
+                    type: "POST",
+                    url: "/ThongTinThuaDat/SuaThongTinThuaDat",
+                    data: "{IDThuaDat: '" + IDThuaDat
+                        + "', IDHoSo: '" + IDHoSo
+                        + "', ToBanDoSo: '" + ToBanDoSo
+                        + "', ThuaDatSo: '" + ThuaDatSo
+                        + "', TongDienTich: '" + TongDienTich
+                        + "', QuaTrinhSuDung: '" + QuaTrinhSuDung + "'}"
+                    ,
+                    async: false,
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.State == 0 && data.Data) {
+
+                            alert("Lưu thông tin thửa đất thành công");
+
+                            $("#windowThemMoi").data("kendoWindow").close();
+                            LoadThuaDat();
+                        }
+                        else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function (data) {
+                        alert("Tạo mới thất bại", data.Message);
+                    },
+                    complete: function () {
+                        // enable nut luu
+                        $('#btnSave').attr("disabled", false);
+                    }
+                });
+            }
+
+
+
+        }
+
+
+
+        function SuaThongTinThuaDat(e) {
+            e.preventDefault();
+            var grid = this;
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var IDHoSo = dataItem.IDHoSo;
+
+            var myWindowThemMoi = $("#windowThemMoi");
+            $("#IDThuaDat").val(dataItem.IDThuaDat);
+            $("#IDHoSo").val(dataItem.IDHoSo);
+            $("#ToBanDoSo").val(dataItem.ToBanDoSo);
+            $("#ThuaDatSo").val(dataItem.ThuaDatSo);
+            $("#TongDienTich").val(dataItem.TongDienTich);
+            $("#QuaTrinhSuDung").val(dataItem.QuaTrinhSuDung);
+            LoadChiTietSuDung(dataItem.IDThuaDat);
+
+            myWindowThemMoi.data("kendoWindow").open();
+        }
+
+
+        function SuaMucDicSuDung(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            console.log(dataItem.IDLoaiDat);
+            var myWindowThemMoi = $("#windowChiTietThuaDat");
+
+            $("#ddlMucDichSuDung").data("kendoDropDownList").value(dataItem.IDLoaiDat);
+            $("#ddlMucDichSuDung").data("kendoDropDownList").enable(false);
+            $("#hidden_IDLoaiDat").val(dataItem.IDLoaiDat);
+            $("#DienTichSuDung").val(dataItem.DienTich);
+            $("#MucDichSD_ChiTiet").val(dataItem.MucDichSD_ChiTiet)
+            $("#NgayHinhThanh").data("kendoDateTimePicker").value(dataItem.NgayHinhThanh);
+            $("#SuDungDenNgay").data("kendoDateTimePicker").value(dataItem.SuDungDenNgay);
+            $("#GhiChu_LoaiDat").val(dataItem.GhiChu);
+            console.log(dataItem.NgayHinhThanh);
+            myWindowThemMoi.data("kendoWindow").open();
+        }
+
+        function CapNhatChiTietSuDung() {
+
+            var IDThuaDat = $("#IDThuaDat").val();
+            var IDHoSo = $("#IDHoSo").val();
+            var IDLoaiDat = $("#ddlMucDichSuDung").val();
+            var DienTich = $("#DienTichSuDung").val();
+            var MucDichSD_ChiTiet = $("#MucDichSD_ChiTiet").val();
+            var NgayHinhThanh = $("#NgayHinhThanh").val(); //kendo.toString($("#NgayHinhThanh").data("kendoDateTimePicker").value(), "G");
+            var SuDungDenNgay = $("#NgayHinhThanh").val(); //kendo.toString($("#SuDungDenNgay").data("kendoDateTimePicker").value(), "G");
+            var GhiChu = $("#GhiChu_LoaiDat").val();
+            if (IDLoaiDat < 1) {
+                alert("Vui lòng điền đầy đủ thông tin");
+            }
+            else {
+                // disable nut luu
+                $('#btnSaveMucDich').attr("disabled", true);
+                $.ajax({
+                    type: "POST",
+                    url: "/ChiTietThuaDat/SuaChiTietThuaDat",
+                    data: "{IDHoSo: '" + IDHoSo
+                        + "', IDThuaDat: '" + IDThuaDat
+                        + "', IDLoaiDat: '" + IDLoaiDat
+                        + "', DienTich: '" + DienTich
+                        + "', MucDichSD_ChiTiet: '" + MucDichSD_ChiTiet
+                        + "', NgayHinhThanh: '" + NgayHinhThanh
+                        + "', SuDungDenNgay: '" + SuDungDenNgay
+                        + "', GhiChu: '" + GhiChu + "'}"
+                    ,
+                    async: false,
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.State == 0 && data.Data) {
+
+                            alert("Lưu thông tin mục đích sử dụng thành công");
+                            $("#IDThuaDat").val(data.Message);
+
+                            $("#windowChiTietThuaDat").data("kendoWindow").close();
+                            LoadChiTietSuDung(data.Message);
+                        }
+                        else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function (data) {
+                        alert("Tạo mới thất bại", data.Message);
+                    },
+                    complete: function () {
+                        // enable nut luu
+                        $('#btnSaveMucDich').attr("disabled", false);
+                    }
+                });
+            }
+
+        }
+
+
+        function XoaThuaDat(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            if (confirm("Bạn có muốn xóa thửa đất số " + dataItem.ThuaDatSo)) {
+                $.ajax({
+                    type: "POST",
+                    url: "/ThongTinThuaDat/XoaThuaDat",
+                    data: "{IDThuaDat: '" + dataItem.IDThuaDat + "'}"
+                    ,
+                    async: false,
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.State == 0 && data.Data) {
+
+                            alert("Xóa thửa đất thành công");
+                            LoadThuaDat();
+                        }
+                        else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function (data) {
+                        alert("Xóa thửa đất thất bại", data.Message);
+                    },
+                    complete: function () {
+                    }
+                });
+            }
+        }
+
+
+        function XoaChiTietThuaDat(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            if (confirm("Bạn có muốn xóa thửa đất số " + dataItem.ThuaDatSo)) {
+                $.ajax({
+                    type: "POST",
+                    url: "/ChiTietThuaDat/XoaChiTietThuaDat",
+                    data: "{IDThuaDat: '" + dataItem.IDThuaDat
+                        + "', IDLoaiDat: '" + dataItem.IDLoaiDat + "'}"
+                    ,
+                    async: false,
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        if (data.State == 0 && data.Data) {
+
+                            alert("Xóa chi tiết thửa đất thành công");
+
+                            LoadChiTietSuDung(dataItem.IDThuaDat);
+                        }
+                        else {
+                            alert(data.Message);
+                        }
+                    },
+                    error: function (data) {
+                        alert("Xóa chi tiết thửa đất thất bại", data.Message);
+                    },
+                    complete: function () {
+                    }
+                });
+            }
+        }
+    </script>
+
+}

@@ -1,0 +1,126 @@
+﻿@model DoAn.Models.HoSo
+
+
+@{
+    ViewBag.Title = "Tiếp nhân hồ sơ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section style{
+    <style>
+   
+    </style>
+}
+
+@section RouterPage{
+    <h2>Tiếp nhận hồ sơ > Tiếp nhận</h2>
+
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal" style="width:80%;">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+		<div></div>
+        <div class="form-group">
+			<div class="row">
+				@Html.LabelForModel("Mã hồ sơ", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+				<div class="col-md-4">
+					@Html.EditorFor(model => model.MaHoSo, new { htmlAttributes = new { @class = "form-control", @id = "MaHoSo" } })
+					@Html.ValidationMessageFor(model => model.MaHoSo, "", new { @class = "text-danger" })
+				</div>
+
+				@Html.LabelForModel("Loại hồ sơ", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+				<div class="col col-md-4">
+					@{
+						Html.RenderAction("RenderPartial", "LoaiHoSo");
+					}
+					@Html.ValidationMessageFor(model => model.IDLoaiHoSo, "", new { @class = "text-danger" })
+				</div>
+			</div>
+        </div>
+
+
+        <div class="form-group">
+            <div class="row">
+                @Html.LabelForModel("Phường/Xã", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+                <div class="col-md-4">
+                    @{
+                        Html.RenderAction("RenderPartial", "PhuongXa");
+                    }
+                    @Html.ValidationMessageFor(model => model.IDPhuongXa, "", new { @class = "text-danger" })
+                </div>
+
+                @Html.LabelForModel("SĐT người nộp HS", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+                <div class="col-md-4">
+                    @Html.EditorFor(model => model.SDTNguoiNopHoSo, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.SDTNguoiNopHoSo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                @Html.LabelForModel("Người chuyển", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+                <div class="col-md-3">
+                    @Html.TextArea("NguoiChuyenQSDD", htmlAttributes: new { @class = "form-control col-md-12", @rows = "3", @placeholder = "Tên người chuyển" })
+                    @*<textarea class="col-md-12 form-control" rows="3" placeholder="Tên người chuyển"></textarea>*@
+                    @Html.ValidationMessageFor(model => model.NguoiChuyenQSDD, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-check col-1">
+                    @Html.CheckBox("nguoiChuyenDongSoHuu", new { htmlAttributes = new { @class = "form-control", @name = "nguoiChuyenDongSoHuu", @id = "nguoiChuyenDongSoHuu" } })
+                    <label class="form-check-label" for="nguoiChuyenDongSoHuu">Đồng sở hữu</label>
+                </div>
+
+                @Html.LabelForModel("Người nhận", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+                <div class="col-md-3">
+                    @Html.TextArea("NguoiNhanQSDD", htmlAttributes: new { @class = "form-control col-md-12", @rows = "3", @placeholder = "Tên người nhận" })
+                    @*<textarea class="col-md-12 form-control" rows="3" placeholder="Tên người nhận"></textarea>*@
+                    @Html.ValidationMessageFor(model => model.NguoiNhanQSDD, "", new { @class = "text-danger" })
+                </div>
+                <div class="form-check col-1">
+                    @Html.CheckBox("NguoiNhanDongSoHuu", new { htmlAttributes = new { @class = "form-control", @name = "NguoiNhanDongSoHuu", @id = "NguoiNhanDongSoHuu" } })
+                    <label class="form-check-label" for="NguoiNhanDongSoHuu">Đồng sở hữu</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                @Html.LabelForModel("Ngày nhận hồ sơ", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(model => model.NgayNhanHoSo, new { @type = "date", @class = "form-control datepicker" })
+                    @Html.ValidationMessageFor(model => model.NgayNhanHoSo, "", new { @class = "text-danger" })
+                </div>
+                @Html.LabelForModel("Ngày trả kết quả", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(model => model.NgayTraHoSo, new { @type = "date", @class = "form-control datepicker" })
+                    @Html.ValidationMessageFor(model => model.NgayTraHoSo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                @Html.LabelForModel("Phương thức tiếp nhận", htmlAttributes: new { @class = "control-label col-md-2 text-right" })
+                <div class="col-md-8">
+                    @Html.RadioButton("PhuongThucTiepNhanHS", "Trực tuyến")
+                    @Html.LabelForModel("Trực tuyến", htmlAttributes: new { @class = "control-label text-left", @for = "Trực tuyến" })
+
+                    @Html.RadioButton("PhuongThucTiepNhanHS", "Trực tiếp")
+                    @Html.LabelForModel("Trực tiếp", htmlAttributes: new { @class = "control-label text-left" })
+                    @Html.ValidationMessageFor(model => model.NgayTraKQGiaiQuyetHS, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+			<div class=" col-md-10"></div>
+            <div class="col-md-2">
+                <input type="submit" value="Tiếp nhận" class="btn-primary" style="text-align: right;" />
+            </div>
+        </div>
+    </div>
+}

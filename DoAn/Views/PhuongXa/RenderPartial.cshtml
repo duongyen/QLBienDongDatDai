@@ -1,0 +1,10 @@
+﻿@model IEnumerable<DoAn.Models.PhuongXa>
+
+<select id="IDPhuongXa" name="IDPhuongXa" class="form-control">
+    <option value="-1">Chọn</option>
+    @foreach (var item in Model)
+    {
+        <option value="@item.IDPhuongXa"> @item.TenPhuongXa </option>
+    }
+</select>
+
